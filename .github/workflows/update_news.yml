@@ -1,0 +1,37 @@
+name: Automated Hourly AI News Journal
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Triggers the AI aggregation wire precisely at minute 0 of every single hour
+  workflow_dispatch: # Injects a manual override button inside your GitHub Actions panel
+
+permissions:
+  contents: write # Authorizes the automated runner instance to push news.json updates to the repository
+
+jobs:
+  run-wire-matrix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Framework
+        uses: actions/checkout@v4
+
+      - name: Initialize Python Ingestion Layer
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Mainstream Ingestion Extensions
+        run: pip install requests feedparser google-genai
+
+      - name: Execute Autonomous Scraper Hub
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # Injecting secure credentials dynamically from your Secrets vault
+        run: python scraper.py
+
+      - name: Sync and Commit Dynamic News Stream
+        run: |
+          git config --global user.name "The Paradigm Bot"
+          git config --global user.email "actions@github.com"
+          git add news.json
+          git commit -m "🤖 News Wire Update: Fresh mainstream articles mapped by AI" || exit 0
+          git push
